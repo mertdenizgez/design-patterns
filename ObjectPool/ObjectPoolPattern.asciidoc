@@ -1,0 +1,48 @@
+=== Object Pool
+
+The object pool pattern, one of the creational design patterns, involves creating a pool of objects in advance instead of creating and destroying objects on demand for the client.
+The pool retains these objects in a repository.
+When the client requests an object, an object is provided to the client from the pool.
+Once the client is done using the object, instead of destroying it, the object is returned to the pool.
+
+== Pool Manager Uml Diagram
+
+[plantuml,poolManager,png]
+....
+class Reception{
+    - {static} Reception tableManager
+    - List<Table> availableTableList
+    - List<Table> reservedTableList
+    - List<String> waitingList
+    - int counter
+    - Reception()
+    + {static} synchronized Reception getInstance()
+    + synchronized Table takeTable()
+    + synchronized void releaseTable(Table table)
+}
+
+class Table{
+    - int id;
+    + int getId()
+    + void setId(int id)
+}
+
+class Thread{
+    + void run()
+}
+
+class Restaurant{
+    +Reception tableManager
+    +Table table
+    +Restaurant customer
+    +{static} void Main(String args[])
+}
+
+Thread <.. Restaurant : <<extends>>
+Table  <.. Restaurant : <<Create>>
+Table "*"  *-- "1" Reception
+Reception   <..  Restaurant : <<Create>>
+Restaurant "*"  *-- "1" Restaurant
+Reception "1"  *-- "1" Reception
+
+....

@@ -1,0 +1,217 @@
+= Decorator Pattern
+
+Tayyip Mert Denizgez 160201036 Örgün Eğitim
+
+== Problem
+
+Bir pizza oluşturma kütüphanesi yazdığımızı varsayalım.
+Bu kütüphane birkaç adet özellik ve bir adet oluştur() metoduna sahip
+olacaktır. Kullanıcı pizza istediğinde bu oluştur metoduyla kullanıcıya
+bir adet pizza oluşturabilirsiniz.
+
+Daha sonrasında kullanıcıların farklı tipte pizzalar istediğini gördünüz
+ve bu problemi çözmek için ise değişik pizza türlerini bir pizza
+sınıfından türetmeyi düşündünüz ve şöyle bir yapı kurdunuz.
+
+[plantuml,example_1,png]
+....
+
+class pizza{
+}
+
+class cheeseli_pizza extends pizza{
+}
+
+class sucuklu_pizza extends pizza{
+}
+
+class sosisli_pizza extends pizza{
+}
+
+....
+
+Peki ya kullanıcı aynı anda hem sucuklu hem de sosisli pizza isterse ne yapacağız ?
+
+Bu tarz alternatif senaryoların her biri için sonradan alt sınıf yazmak
+her ne kadar programın çalışmasına engel olmasa da efektif bir çözüm oluşturmamaktadır.
+
+== Çözüm
+
+Kalıtım oluşturmanın şunlar gibi bazı promlemleri vardır:
+
+** Kalıtım statiktir. Uygulama çalışırken üstünde değişiklik yapamazsınız.
+
+** Bir çok programlama dilinde çoklu kalıtım bulunmamaktadır. Bu sebeple
+alt sınıflar birden fazla davranışı kalıtım yoluyla elde edememektedir.
+
+Decorator pattern sayesinde bu sorunların üstesinden gelebilmekteyiz.
+Wrapper olarak kabul edebileceğimiz ana bir nesne ile hedef nesneyi
+sarabilliriz. Wrapper nesnesi hedef olan nesne ile aynı interface'i
+implement ettiği için aynı metotları
+içermektedir. Bu sayede hedef objenin tüm isteklerini ilgili yerlere
+iletebilmektedir. Aynı interface'i implement ettikleri için
+Client tarafında iki nesne aynı olarak görülmektedir. Bu sayede wrapper
+referansı o interface'i implement eden tüm sınıflardan nesne alabilecektir.
+
+[code,java]
+....
+public interface Pizza {
+    public String getToppings();
+    public void setToppings(String topping);
+    public double getprize();
+    public void setprize(double prize);
+}
+....
+
+Örneğimize bakacak olursak her pizza türü için ayrı alt sınıf oluşturmak
+yerine Pizza interface'ini implement eden abstract bir base decorator
+ve bu base decoratorı extend eden diğer decoratorlar oluşturulabilir.
+
+=== Base Decorator
+[code,java]
+....
+public abstract class ToppingsDecorator implements Pizza{
+
+    private Pizza obj;
+    protected double prize;
+
+    public  ToppingsDecorator(Pizza obj){   // <1>
+        this.obj = obj;
+    }
+    public String getToppings(){}
+    public double getprize(){}
+    public void setToppings(String topping){}
+    public void setprize(double prize) {}
+
+}
+
+....
+<1>  Pizza interface'in tipinde değişken alarak polymorphisimden de
+yararlanarak o interface'i implement eden her nesneyi kabul etmektedir.
+
+=== Corn Decoratorı
+[code,java]
+....
+public class Corn extends ToppingsDecorator{ // <1>
+    public Corn(Pizza obj){ // <2>
+        super(obj); // <3>
+        System.out.println("Corn Eklendi.");
+        setToppings();
+        setprize();
+        this.prize = 5;
+    }
+    public void setToppings(){}
+    public void setprize(){}
+}
+....
+<1> Base Decorator sınıf olan Abstract ToppingsDecorator Sıfını extend ediyor.
+<2> Base Decoratorda olduğu gibi pizza interface'i tipinde nesne kabul ediyor.
+<3> Öncelikle gelen nesneyi ana sınıfın constructorını gönderiyor.
+
+=== Pizza Oluştur
+Temel pizza sınıfıdır. Decorator sınıflar bu sınıftan üretilen
+nesnenin üzerinde işlem yapmaktadır.
+
+[code,java]
+....
+public class PizzaCreator implements Pizza{
+    private List<String> toppings = new ArrayList<>(); // <1>
+    private double prize = 0; // <2>
+
+    public void setToppings(String topping){}
+    public String getToppings(){}
+    public double getprize(){}
+    public void setprize(double prize) {}
+}
+....
+<1> Eklenen toppingsi tutan liste
+<2> Her topping eklendiğinde o toppingnin prizeıyla artan toplam pizza prizeını veren değişken
+
+
+=== Uygulama
+
+[code,java]
+....
+public class Uygulama {
+
+    public static void main(String[] args) {
+        Pizza p1 = new Corn(new Cheese(new BreadType(new PizzaCreator(),"Normal"))); // <1>
+
+        System.out.println(p1.getToppings().toString());
+        System.out.println(p1.getprize());
+
+        Pizza p2 = new Corn(new Cheese(new PizzaCreator())); // <2>
+
+        System.out.println(p2.getToppings().toString());
+        System.out.println(p2.getprize());
+    }
+}
+....
+
+<1> Temel pizza nesnesine bread tipi cheese ve mısır decoratorları kullanılarak ekstra
+özellikler eklendi.
+<2> Bu satırda ise p2 nesnesine sadece cheese ve mısır özellikleri eklendi.
+
+1 ve 2 ile numaralandırılmış satırlar uygulama çalışırken o özelliklere sahip nesneleri oluşturacaktır.
+Böylece dinamik olarak bir nesneye özellik eklenmiş olacaktır.
+
+Ayrıca burada Mısır cheese gibi decoratorların öncelik sırası bulunmamaktadır.
+
+
+Bu işlemler sonucunda yapının uml diyagramı şu şekilde olacaktır:
+
+[plantuml,decoratorPattern,png]
+....
+Interface Pizza {
+    + String getToppings();
+    + void setToppings(String topping);
+    + double getprize();
+    + void setprize(double prize);
+}
+
+abstract class ToppingsDecorator implements Pizza{
+    - Pizza obj;
+    # double prize;
+    + ToppingsDecorator(Pizza obj);
+}
+
+class PizzaOluştur implements Pizza{
+    - List<String> toppings;
+    - double prize = 0;
+}
+
+class Corn extends ToppingsDecorator{
+    + Corn(Pizza obj);
+}
+class Cheese extends ToppingsDecorator{
+    + Cheese(Pizza obj);
+}
+class BreadType extends ToppingsDecorator{
+    - String bread;
+    + BreadType(Pizza obj);
+}
+ToppingsDecorator o-- Pizza
+....
+
+Bu yapı sayesinde yeni pizza türleri dinamik olarak runtime'da oluşturulabilecektir.
+
+== Uygulanabilirlik
+
+* Çalışma zamanında bir objeye davranış eklenmesi gerektiğinde kullanılabilir.
+
+* Kalıtım yoluyla davranış aktarılması uygun ya da efektif olmadığında kullanılabilir.
+
+== Avantajları
+
+* Alt sınıf oluşturmadan davranış aktarımı yapılabilir.
+* Çalışma zamanında davranış eklenip çıkartılabilir.
+* Birden fazla decorator kullanarak bir nesneye birden fazla davranış eklenebilir.
+* Single Responsibility Principle ı gerçekleştirir. Her özellik
+için farklı küçük sınıflar açılmaktadır.
+
+== Dezavantajları
+
+* Davranışlar bir yığın olarak eklendiğinde belli bir davranışı
+çıkarmak maliyetli olabilir.(Üst üste giyilen ceketlerden ortadaki bir ceketi çıkartmak gibi.)
+* Kodun okunabilirliği azalabilir.
+

@@ -1,0 +1,63 @@
+=== Builder Pattern
+The essence of object-oriented programming relies on classes.
+We create objects from classes and use constructors to achieve this.
+If our class has a high number of fields, we might need multiple constructors.
+Consequently, when the number of fields increases, we may feel the need to add a new constructor each time.
+This is because when creating an object, we may not know which fields will be assigned or not.
+Here, the Builder Pattern provides an elegant solution to eliminate the complexity arising from the increasing number of parameters.
+== Builder Pattern UML
+
+[plantuml,BuilderPattern,png]
+....
+class Hamburger{
+    - String breadType
+    - String meatType
+    - String drink
+    - String potatoPortion
+    - boolean ketchup
+    - boolean mayonnaise
+    - boolean lettuce
+    - boolean onion
+    - boolean tomato
+
+    - Hamburger(Builder builder)
+    + String getbreadType()
+    + String getmeatType()
+    + String getdrink()
+    + String getpotatoPortion()
+    + boolean isketchup()
+    + boolean ismayonnaise()
+    + boolean islettuce()
+    + boolean isonion()
+    + boolean istomato()
+    + String toString()
+    + {static} void main(String[] args)
+}
+
+class  Builder{
+    - String breadType
+    - String meatType
+    - String drink
+    - String potatoPortion
+    - boolean ketchup
+    - boolean mayonnaise
+    - boolean lettuce
+    - boolean onion
+    - boolean tomato
+    + Builder breadType(String breadType)
+    + Builder meatType(String meatType)
+    + Builder drink(String drink)
+    + Builder potatoPortion(String potatoPortion)
+    + Builder ketchup(Boolean ketchup)
+    + Builder mayonnaise(Boolean mayonnaise)
+    + Builder lettuce(Boolean lettuce)
+    + Builder onion(Boolean onion)
+    + Builder tomato(Boolean tomato)
+    + Hamburger build()
+}
+
+Hamburger +-- Builder
+Hamburger"1" -- "1"Builder
+
+
+....

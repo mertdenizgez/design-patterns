@@ -1,0 +1,136 @@
+= Visitor Pattern
+
+Tayyip Mert Denizgez-160201036-Örgün Öğretim
+
+== Problem
+
+Bir insurance firması için uygulama geliştirdiğinizi düşünün.
+Bu uygulama ile fabrikalara, kafelere, insanlara, müstakil evlere
+insurance yapmanız gerekebilir. Bu yerlerin her biri bir bağımsız bir
+varlığı temsil ettiği düşünüldüğünde her birini bir sınıf elemanı
+olarak ele alabiliriz. Böylece uygulamamız aslında karmaşık ve
+birbirinden farklı özelliklere sahip nesnelere insurance yapmaktadır.
+
+Başlarda bu işlem çok basit görünebilir. Her bir sınıf için bir
+adet insurance fonksiyonu eklendiğinde gerekli nesneden o fonksiyon
+çağırılarak insurance işlemi gerçekleştirilebilir.
+
+Ancak halihazırda kullanım aşamasında olan bir sistemdeki sınıfları
+güncellemek tehlikeli olabilir ortaya istenmeyen buglar çıkartabilir.
+
+Ayrıca öncelikli amacı bir varlığı temsil etmek olan bir sınıfa
+aslında o varlığa ait olmayan bir özellik eklemek yapısal olarak
+istenmeyen bir durum oluşturmaktadır.
+
+== Çözüm
+
+Visitor Pattern bu probleme şöyle bir çözüm sunmaktadır.
+Bu yeni özelliği(Sigorta Yapmak) halihazırda bir varlığı temsil
+eden sınıfa direkt olarak eklemektense Visitor adında başka bir
+sınıfa eklemektir. Böylece orijinal sınıfın nesnesi visitor metoduna
+parametre olarak yollanarak bu davranışı gerçekleştirebilecektir.
+
+[code,java]
+----
+public interface Visitor {
+    public void Visit(Bank obj);
+    public void Visit(Cafe obj);
+    public void Visit(Factory obj);
+    public void Visit(Home obj);
+}
+----
+Yukarıdaki koddan da görebileceğimiz üzerine Visitor interface'inde
+Sigorta yapılacak olan her varlık için gerekli metot bulunmaktadır.
+
+[code,java]
+----
+public interface InsuranceCompany {
+    public void accept(Visitor obj);
+}
+----
+Oluşturulan varlıklar yukarıdaki interface'i implement ettikten sonra
+accept fonksiyonu aracılığıyla insurance yapılacak objeyi iletebilmektedir.
+
+Bu işlem için oluşturulan her sınıfa aşağıdaki metotdun override
+edilmesi yeterli olacaktır.
+
+[code,java]
+----
+public void accept(Visitor obj){
+        obj.Visit(this);
+}
+----
+
+
+== Sonuç
+
+Visitor Pattern sayesinde halihazırda çalışan bir uygulama üzerinde
+davranışsal değişiklikler güvenli bir şekilde yapılabilmektedir.
+Çünkü davranış direkt olarak davranışı gösteren nesne üzerinden değil
+visitor sınıfından üretilen nesne üzerinden gerçekleştirilmektedir.
+
+=== Uygulanabilirliği
+** Karmaşık nesne yapıları üzerinde işlem yapılması gerektiğinde
+Visitor Pattern kullanılabilir
+
+*** Visitor Pattern bir işlemin birkaç farklı implementasyonu
+ile farklı sınıflardan oluşan nesne kümeleri üzerinde işlem yapmanıza
+olanak sağlar
+
+** Yardımcı davranışları ana akıştan temizlemek için kullanılabilir
+
+*** Visitor pattern sayesinde sınıflar yan davranışlar yerine kendi
+davranışlarına odaklanabilir.
+
+** Sınıf hiyerarşisindeki bazı sınıfların o davranışı gerçekleştirmesi
+gerektiğinde kullanılabilir.
+
+*** Davranışın ayrı bir Visitor sınıfına taşınmasıyla birlikte sadece
+gerekli olan sınıflarda accept() fonksiyonu implement edilerek
+görev ayrıştırılabilir.
+
+https://refactoring.guru/design-patterns/visitor[Kaynakça]
+
+
+=== Uygulamanın Uml Çizimi:
+[plantuml,visitorpattern,png]
+....
+Interface Visitor{
+    + void Visit(Bank obj);
+    + void Visit(Cafe obj);
+    + void Visit(Factory obj);
+    + void Visit(Home obj);
+}
+Interface InsuranceCompany{
+     + void accept(Visitor obj);
+     + List<InsuranceType> insurances;
+}
+Enum InsuranceType{
+    Health;
+    Earthquake;
+    Theft;
+    Flood;
+    NaturalDisaster;
+}
+class CreateInsurance extends Visitor{
+    + {static} void main(String[] args)
+}
+
+class Bank implements InsuranceCompany{
+}
+class Cafe implements InsuranceCompany{
+}
+class Factory implements InsuranceCompany{
+}
+class Home implements InsuranceCompany{
+}
+
+Visitor ..> Bank : <<uses>>
+Visitor ..> Factory : <<uses>>
+Visitor ..> Home : <<uses>>
+Visitor ..> Cafe : <<uses>>
+
+....
+
+
+

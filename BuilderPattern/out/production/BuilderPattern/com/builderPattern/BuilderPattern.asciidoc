@@ -1,0 +1,65 @@
+=== Builder Pattern
+Nesne tabanlı programlamanın özü sınıflara dayanır.
+Sınıflardan nesneler yaratırız.
+Bunu yapmak için de constructorları kullanırız.
+Sınıfımızda bulunan field sayısı fazla olursa bundan dolayı birden çok constructora ihtiyaç duyabiliriz.
+Haliyle her bir field eklendiğinde yeni bir constructor ekleme ihtiyacı hissedebiliriz.
+Çünkü nesneyi oluştururken hangi field başta atama yapılacak ya da yapılmayacak bilemeyebiliriz.
+İşte bu uzayıp giden parametre sayısından, karmaşık constructorlardan kurtarmak için Builder Pattern güzel bir çözüm sunuyor.
+
+== Builder Pattern UML
+
+[plantuml,BuilderPattern,png]
+....
+class Hamburger{
+    - String ekmekTipi
+    - String etTuru
+    - String icecek
+    - String patatesBoyu
+    - boolean ketcap
+    - boolean mayonez
+    - boolean marul
+    - boolean sogan
+    - boolean domates
+
+    - Hamburger(HamburgerBuilder builder)
+    + String getEkmekTipi()
+    + String getEtTuru()
+    + String getIcecek()
+    + String getPatatesBoyu()
+    + boolean isKetcap()
+    + boolean isMayonez()
+    + boolean isMarul()
+    + boolean isSogan()
+    + boolean isDomates()
+    + String toString()
+    + {static} void main(String[] args)
+}
+
+class  HamburgerBuilder{
+    - String ekmekTipi
+    - String etTuru
+    - String icecek
+    - String patatesBoyu
+    - boolean ketcap
+    - boolean mayonez
+    - boolean marul
+    - boolean sogan
+    - boolean domates
+    + HamburgerBuilder ekmekTipi(String ekmekTipi)
+    + HamburgerBuilder etTuru(String etTuru)
+    + HamburgerBuilder icecek(String icecek)
+    + HamburgerBuilder patatesBoyu(String patatesBoyu)
+    + HamburgerBuilder ketcap(Boolean ketcap)
+    + HamburgerBuilder mayonez(Boolean mayonez)
+    + HamburgerBuilder marul(Boolean marul)
+    + HamburgerBuilder sogan(Boolean sogan)
+    + HamburgerBuilder domates(Boolean domates)
+    + Hamburger build()
+}
+
+Hamburger +-- HamburgerBuilder
+Hamburger"1" -- "1"HamburgerBuilder
+
+
+....

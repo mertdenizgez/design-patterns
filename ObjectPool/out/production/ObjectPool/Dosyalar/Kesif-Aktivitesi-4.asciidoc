@@ -1,0 +1,48 @@
+=== Object Pool
+
+Creational tasarım kalıplarından biri olan object pool pattern Client için
+isteğe bağlı nesne oluşturup yok etmek yerine halihazırda bir küme obje
+oluşturup o objeleri bir havuzda tutar. Client bir obje istediğinde havuzdan
+clienta bir nesne verilir clientın nesne ile işi bittiğinde ise nesneyi
+yok etmek yerine havuza geri gönderir.
+
+== Pool Manager Uml Diagram
+[plantuml,poolManager,png]
+....
+class Reception{
+    - {static} Reception tableManager
+    - List<Table> availableTableList
+    - List<Table> reservedTableList
+    - List<String> waitingList
+    - int counter
+    - Reception()
+    + {static} synchronized Reception getInstance()
+    + synchronized Table takeTable()
+    + synchronized void releaseTable(Table table)
+}
+
+class Table{
+    - int id;
+    + int getId()
+    + void setId(int id)
+}
+
+class Thread{
+    + void run()
+}
+
+class Restaurant{
+    +Reception tableManager
+    +Table table
+    +Restaurant customer
+    +{static} void Main(String args[])
+}
+
+Thread <.. Restaurant : <<extends>>
+Table  <.. Restaurant : <<Create>>
+Table "*"  *-- "1" Reception
+Reception   <..  Restaurant : <<Create>>
+Restaurant "*"  *-- "1" Restaurant
+Reception "1"  *-- "1" Reception
+
+....

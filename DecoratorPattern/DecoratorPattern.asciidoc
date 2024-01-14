@@ -1,0 +1,195 @@
+= Decorator Pattern
+
+Tayyip Mert Denizgez 160201036 Örgün Eğitim
+
+== Problem
+
+Let's assume we are writing a pizza creation library. This library will have several features and one create() method. When the user requests a pizza, they can create one with this create method.
+
+Later on, you noticed that users want different types of pizzas, and to solve this problem, you thought of deriving different pizza types from a pizza class. You structured it as follows:
+
+[plantuml,example_1,png]
+....
+
+class pizza{
+}
+
+class cheesy_pizza extends pizza{
+}
+
+class sausage_pizza extends pizza{
+}
+
+class pepperoni_pizza extends pizza{
+}
+
+....
+
+But what if the user wants a pizza with both sausage and pepperoni at the same time?
+
+Creating a new subclass for each of these alternative scenarios, while not preventing the program from running, is not an effective solution.
+
+== Solution
+
+Inheritance has some problems, such as:
+
+** Inheritance is static. You cannot make changes to it while the application is running.
+
+** Multiple inheritance is not present in many programming languages. Therefore, subclasses cannot obtain more than one behavior through inheritance.
+
+Through the Decorator pattern, we can overcome these problems. We can wrap a target object with a primary object that we can consider as a wrapper. Since the wrapper object implements the same interface as the target object, it contains the same methods. Thus, it can forward all the requests of the target object to the relevant places. Since they implement the same interface, two objects are seen as the same on the client side. Therefore, the wrapper reference can receive objects from all classes that implement that interface.
+
+[code,java]
+....
+public interface Pizza {
+    public String getToppings();
+    public void setToppings(String topping);
+    public double getprize();
+    public void setprize(double prize);
+}
+....
+
+Looking at our example, instead of creating a separate subclass for each pizza type, an abstract base decorator implementing the Pizza interface and other decorators extending this base decorator can be created.
+
+=== Base Decorator
+[code,java]
+....
+public abstract class ToppingsDecorator implements Pizza{
+
+    private Pizza obj;
+    protected double prize;
+
+    public  ToppingsDecorator(Pizza obj){   // <1>
+        this.obj = obj;
+    }
+    public String getToppings(){}
+    public double getprize(){}
+    public void setToppings(String topping){}
+    public void setprize(double prize) {}
+
+}
+
+....
+<1> It takes a variable of the type of the Pizza interface in the constructor, benefiting from polymorphism and accepting any object that implements that interface.
+
+=== Corn Decorator
+[code,java]
+....
+public class Corn extends ToppingsDecorator{ // <1>
+    public Corn(Pizza obj){ // <2>
+        super(obj); // <3>
+        System.out.println("Corn Added.");
+        setToppings();
+        setprize();
+        this.prize = 5;
+    }
+    public void setToppings(){}
+    public void setprize(){}
+}
+....
+<1> It extends the Abstract ToppingsDecorator class, which is the Base Decorator class.
+<2> Like the Base Decorator, it accepts an object of type pizza interface.
+<3> It first sends the incoming object to the constructor of the base class.
+
+=== Create Pizza
+It is the basic pizza class. Decorator classes operate on an object created from this class.
+
+[code,java]
+....
+public class PizzaCreator implements Pizza{
+    private List<String> toppings = new ArrayList<>(); // <1>
+    private double prize = 0; // <2>
+
+    public void setToppings(String topping){}
+    public String getToppings(){}
+    public double getprize(){}
+    public void setprize(double prize) {}
+}
+....
+<1> List holding the added toppings.
+<2> Variable giving the total pizza prize, which increases with the prize of each added topping.
+
+
+=== Application
+
+[code,java]
+....
+public class Application {
+
+    public static void main(String[] args) {
+        Pizza p1 = new Corn(new Cheese(new BreadType(new PizzaCreator(),"Normal"))); // <1>
+
+        System.out.println(p1.getToppings().toString());
+        System.out.println(p1.getprize());
+
+        Pizza p2 = new Corn(new Cheese(new PizzaCreator())); // <2>
+
+        System.out.println(p2.getToppings().toString());
+        System.out.println(p2.getprize());
+    }
+}
+....
+
+<1> Extra features such as bread type, cheese, and corn decorators are added to the basic pizza object.
+<2> In this line, only cheese and corn features are added to the p2 object.
+
+Lines numbered 1 and 2 will create objects with those features dynamically while the application is running. Thus, a feature can be added to an object dynamically.
+
+Also, there is no priority order for decorators like Corn and Cheese here.
+
+As a result of these operations, the UML diagram of the structure will be as follows:
+
+[plantuml,decoratorPattern,png]
+....
+Interface Pizza {
+    + String getToppings();
+    + void setToppings(String topping);
+    + double getprize();
+    + void setprize(double prize);
+}
+
+abstract class ToppingsDecorator implements Pizza{
+    - Pizza obj;
+    # double prize;
+    + ToppingsDecorator(Pizza obj);
+}
+
+class PizzaCreator implements Pizza{
+    - List<String> toppings;
+    - double prize = 0;
+}
+
+class Corn extends ToppingsDecorator{
+    + Corn(Pizza obj);
+}
+class Cheese extends ToppingsDecorator{
+    + Cheese(Pizza obj);
+}
+class BreadType extends ToppingsDecorator{
+    - String bread;
+    + BreadType(Pizza obj);
+}
+
+....
+
+Thanks to this structure, new pizza types can be created dynamically at runtime.
+
+== Applicability
+
+* It can be used when behavior needs to be added to an object at runtime.
+
+* It can be used when transferring behavior through inheritance is not appropriate or efficient.
+
+== Advantages
+
+* Behavior can be transferred without creating subclasses.
+* Behavior can be added or removed at runtime.
+* Multiple behaviors can be added to an object using multiple decorators.
+* It fulfills the Single Responsibility Principle. Different small classes are opened for each feature.
+
+== Disadvantages
+
+* When behaviors are added as a stack, removing a specific behavior can be costly (like removing a middle jacket from stacked jackets).
+* Code readability may decrease.
+
+

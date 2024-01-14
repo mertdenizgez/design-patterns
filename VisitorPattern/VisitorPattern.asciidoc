@@ -1,0 +1,104 @@
+= Visitor Pattern
+
+== Problem
+
+Imagine you are developing an application for an insurance company.
+With this application, you may need to insure factories, cafes, people, and detached houses.
+When each of these places is considered to represent an independent entity, we can treat each one as a class member.
+Thus, our application is actually insuring objects with complex and different features.
+
+Initially, this process may seem straightforward.
+When an insurance function is added for each class, the required object can be insured by calling that function from the relevant object.
+
+However, updating classes in a system that is already in use can be dangerous and may introduce unwanted bugs.
+Additionally, adding a feature to a class whose primary purpose is to represent an entity is actually an undesirable situation structurally.
+
+== Solution
+
+The Visitor Pattern provides a solution to this problem.
+Instead of directly adding this new feature (Insuring) to the class representing an entity, it suggests adding it to another class called Visitor.
+Thus, the object of the original class can be sent to the visitor method as a parameter to perform this behavior.
+
+[code,java]
+----
+public interface Visitor {
+    public void Visit(Bank obj);
+    public void Visit(Cafe obj);
+    public void Visit(Factory obj);
+    public void Visit(Home obj);
+}
+----
+
+As seen in the above code, the Visitor interface contains the necessary methods for each entity to be insured.
+
+[code,java]
+----
+public interface InsuranceCompany {
+    public void accept(Visitor obj);
+}
+----
+
+After the created entities implement the above interface, they can convey the object to be insured through the accept function.
+
+For this operation, it is sufficient to override the method below for each created class.
+
+[code,java]
+----
+public void accept(Visitor obj){
+        obj.Visit(this);
+}
+----
+
+== Result
+
+Thanks to the Visitor Pattern, behavioral changes can be made safely on an already running application.
+This is because the behavior is performed not directly on the object displaying the behavior but on the object created from the visitor class.
+
+=== Applicability
+
+- It can be used when operations need to be performed on complex object structures.
+- The Visitor Pattern allows operating on sets of objects consisting of different implementations with several different implementations of a single operation.
+- It can be used to separate auxiliary behaviors from the main flow.
+- With the Visitor pattern, classes can focus on their own behaviors rather than side behaviors.
+
+=== UML Diagram of the Application:
+
+[plantuml,visitorpattern,png]
+....
+Interface Visitor{
+    + void Visit(Bank obj);
+    + void Visit(Cafe obj);
+    + void Visit(Factory obj);
+    + void Visit(Home obj);
+}
+Interface InsuranceCompany{
+     + void accept(Visitor obj);
+     + List<InsuranceType> insurances;
+}
+Enum InsuranceType{
+    Health;
+    Earthquake;
+    Theft;
+    Flood;
+    NaturalDisaster;
+}
+class CreateInsurance implements Visitor{
+    + {static} void main(String[] args)
+}
+
+class Bank implements InsuranceCompany{
+}
+class Cafe implements InsuranceCompany{
+}
+class Factory implements InsuranceCompany{
+}
+class Home implements InsuranceCompany{
+}
+
+Visitor ..> Bank : <<uses>>
+Visitor ..> Factory : <<uses>>
+Visitor ..> Home : <<uses>>
+Visitor ..> Cafe : <<uses>>
+....
+
+

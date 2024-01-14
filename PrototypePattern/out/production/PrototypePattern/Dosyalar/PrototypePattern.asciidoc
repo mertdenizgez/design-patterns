@@ -1,0 +1,78 @@
+=== Prototype Pattern
+
+== Prototype Pattern
+Prototype Pattern, mevcut nesnenin bir klonunu oluşturmayı
+söyleyen bir prototip arayüzünün uygulanmasını içerir.
+Bu desenin, doğrudan nesne oluşturmanın pahalı olduğu
+durumlarda kullanılması önerilir. Örneğin, bir veritabanı
+işleminden sonra bir nesne oluşturulur ve bu nesne
+cachelenir(ön belleğe alınır).
+Daha sonraki isteklerde bu nesne üstünden clone oluşturulur.
+Veritabanı sorgularından kaynaklı yükü azaltmış oluruz.
+
+link:https://medium.com/@tugrulbayrak/creational-patterns-singleton-prototype-beabbcabdde6[Kaynak]
+
+== Deep Copy
+Bir nesne deep copy yapılırken nesne kopya nesneyi alan nesne
+referansı yeni bir adresi göstermektedir. Ayrıca kopyalanan
+nesnenin sahip olduğu fieldlar içinde bu kopyalama geçerlidir.
+Sonuç olarak bir nesne kopyalandığında kendisine ait fieldların
+sadece değerleri kopyalanmaktadır fieldlar kopya alan nesnenin
+fieldlarından bağımsız kalmaktadırlar.
+
+image::dc1.png[deep copy]
+image::dc2.png[deep copy]
+image::dc3.png[deep copy]
+
+
+== Shallow Copy
+Deep copy işleminin aksine bir nesne shallow copy yapıldığında
+kopyayı alan referans sadece orijinal nesnenin field değerlerini
+almakla kalmaz aynı zamanda o fieldların adresini gösterir.Bu
+durumda kopya olan nesnede yapacağımız bir değişiklik orijinal
+nesneyi de etkileyecektir.
+
+image::sc1.png[shallow copy]
+image::sc2.png[shallow copy]
+image::sc3.png[shallow copy]
+
+link:https://stackoverflow.com/questions/184710/what-is-the-difference-between-a-deep-copy-and-a-shallow-copy[Görsellerin Kaynağı]
+
+== Prototype Pattern UML
+
+[plantuml,prototypePattern,png]
+....
+interface Clonable{
+}
+abstract class SoldierFactory{
+    + List<String> equipment;
+    + String side;
+    - {abstract} void fillEquipment();
+}
+
+class StormtrooperFactory{
+    + StormtrooperFactory()
+    # void fillEquipment()
+    + Object clone()
+}
+class DroidFactory{
+    + DroidFactory()
+    # void fillEquipment()
+    + Object clone()
+}
+class Battleground{
+    + StormtrooperFactory st1
+    + SoldierFactory st2
+    + DroidFactory dr1
+    + SoldierFactory dr2
+    + {static} void main()
+}
+Clonable <|.. SoldierFactory : <<implements>>
+SoldierFactory <|.. StormtrooperFactory: <<extends>>
+SoldierFactory <|.. DroidFactory: <<extends>>
+SoldierFactory  <..  Battleground : <<create>>
+StormtrooperFactory  <..  Battleground : <<create>>
+DroidFactory  <..  Battleground : <<create>>
+
+
+....

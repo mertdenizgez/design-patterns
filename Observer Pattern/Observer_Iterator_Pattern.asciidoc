@@ -1,0 +1,55 @@
+== Observer Iterator Pattern
+
+[plantuml,observer_iterator,png]
+....
+
+interface Iterator{
++ boolean hasNext()
++ Observer next()
+}
+
+
+class Subject{
+- List<Observer> obsList
+- String state
++ ObserverIterator getIteratorObject()
++ void setState(String state)
++ String getState()
++ void attach(Observer observer)
++ void notifyAllObserver()
+}
+
+class ObserverIterator{
+- int index
+}
+
+abstract class Observer{
+~ Subject subject
++ {abstract} void update()
+
+}
+
+class Observer1{
++ Observer1(Subject subject)
+}
+class Observer2{
++ Observer2(Subject subject)
+}
+class Observer3{
++ Observer3(Subject subject)
+}
+
+class ObserverPattern{
++ {static} void main(String[] args)
+}
+
+ObserverIterator ..|> Iterator
+ObserverIterator --+ Subject
+Observer1 ..|> Observer
+Observer2 ..|> Observer
+Observer3 ..|> Observer
+Observer"*" -- "1"Subject
+ObserverPattern ..> Subject : <<use>>
+
+
+....
